@@ -4,16 +4,25 @@ import io
 import re
 from download import download_button
 
-def amalgam():
-    multiple_files = st.sidebar.file_uploader(
-    "Multiple File Uploader",
-    accept_multiple_files=True
-    )
+multiple_files_1 = st.sidebar.file_uploader(
+    "Upload Common Uptime/Downtime Data Here, this is a multiple file uploader.",
+    accept_multiple_files=True,
+    key = "I am number one"
+)
+
+multiple_files_2 = st.sidebar.file_uploader(
+    "Upload DDNS Data Here, this is a multiple file uploader.",
+    accept_multiple_files=True,
+    key = "I am number two"
+)
+
+def amalgam(multiple_files):
+    
     ita = pd.DataFrame(columns=["Date Time", "Downtime", "MC", "ISP"])
     for file in multiple_files:
-        file_container = st.expander(
-            f"File name: {file.name} ({file.size}b)"
-        )
+        # file_container = st.expander(
+        #     f"File name: {file.name} ({file.size}b)"
+        # )
 
         # get the raw data in byte format
         data = io.BytesIO(file.getbuffer())
@@ -49,10 +58,12 @@ def amalgam():
         # append data to main DataFrame
         ita = ita.append(data_df)
 
-        file_container.write(data_df)
-
-    download_button_str = download_button(ita,"ita.csv",'Download CSV',pickle_it=False)
-    st.sidebar.markdown(download_button_str, unsafe_allow_html=True)
     st.write(ita)
+    download_button_str = download_button(ita,"ita.csv",'Download CSV',pickle_it=False)
+    st.markdown(download_button_str, unsafe_allow_html=True)
 
-amalgam()
+st.header("This is the data to be used for common uptime/downtime")
+amalgam(multiple_files_1)
+
+st.header("This is the data to be used for DDNS")
+amalgam(multiple_files_2)
