@@ -17,7 +17,6 @@ multiple_files_2 = st.sidebar.file_uploader(
 )
 
 def amalgam(multiple_files):
-    
     ita = pd.DataFrame(columns=["Date Time", "Downtime", "MC", "ISP"])
     for file in multiple_files:
         # file_container = st.expander(
