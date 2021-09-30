@@ -2,11 +2,10 @@ import streamlit as st
 import pandas as pd
 import io
 import re
-
-ISP = ["Safaricom","Zuku","JTL","LTK","IS"]
+from download import download_button
 
 def amalgam():
-    multiple_files = st.file_uploader(
+    multiple_files = st.sidebar.file_uploader(
     "Multiple File Uploader",
     accept_multiple_files=True
     )
@@ -52,6 +51,8 @@ def amalgam():
 
         file_container.write(data_df)
 
+    download_button_str = download_button(ita,"ita.csv",'Download CSV',pickle_it=False)
+    st.sidebar.markdown(download_button_str, unsafe_allow_html=True)
     st.write(ita)
 
 amalgam()
