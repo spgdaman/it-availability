@@ -51,6 +51,9 @@ def amalgam(multiple_files):
             file_name = ' '.join(split_text)
             file_name = file_name.title()
 
+        # # check for ddns data
+        # if file_name == "DDNS":
+
         data_df['MC'] = file_name
         data_df['ISP'] = isp_name
 
