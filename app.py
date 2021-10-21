@@ -321,8 +321,40 @@ ddns['Downtime'] = ddns['Downtime'].astype('int')/100
 
 
 # add conditional columns to common uptime dataframe
-ddns['uptime'] = 1 - common_uptime['Downtime']
-ddns['Uptime (Minutes)'] = common_uptime['uptime'] * 15
+ddns['uptime'] = 1 - ddns['Downtime']
+ddns['Uptime (Minutes)'] = ddns['uptime'] * 15
 ddns['Max_Uptime'] = 15
-ddns['Downtime (Minutes)'] = common_uptime['Downtime'] * 15
+ddns['Downtime (Minutes)'] = ddns['Downtime'] * 15
 ddns.rename(columns={"Uptime (Minutes)":"Uptime_(Minutes)"}, inplace=True)
+
+ddns_common_copy = ddns[['MC','Uptime_(Minutes)','Max_Uptime']]
+mysql = lambda q: sqldf(q, globals())
+ddns_grouping = '''
+    SELECT MC, (SUM("Uptime_(Minutes)") / SUM(Max_Uptime))*100 as Availability
+    FROM ddns_common_copy
+    GROUP BY MC
+    ORDER BY Availability DESC;
+''' 
+
+ddns_grouping = mysql(ddns_grouping)
+ddns_grouping['Availability'] = ddns_grouping['Availability'].astype(int)
+
+# DDNS Common Uptime/Downtime Bar Chart
+st.subheader("DDNS Common Uptime/Downtime")
+avail_x = ddns_grouping['MC'].to_list()
+avail_y = ddns_grouping['Availability'].to_list()
+
+col = []
+for val in avail_y:
+    if val >= 99:
+        col.append(green)
+    elif val == 98:
+        col.append(yellow)
+    else:
+        col.append(red)
+
+fig = plt.figure()
+
+plt.bar(avail_x,avail_y, color = col)
+plt.xticks(rotation=80)
+st.pyplot(fig)
