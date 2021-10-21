@@ -320,3 +320,9 @@ ddns['Downtime'] = ddns['Downtime'].str.replace('>','')
 ddns['Downtime'] = ddns['Downtime'].astype('int')/100
 
 
+# add conditional columns to common uptime dataframe
+ddns['uptime'] = 1 - common_uptime['Downtime']
+ddns['Uptime (Minutes)'] = common_uptime['uptime'] * 15
+ddns['Max_Uptime'] = 15
+ddns['Downtime (Minutes)'] = common_uptime['Downtime'] * 15
+ddns.rename(columns={"Uptime (Minutes)":"Uptime_(Minutes)"}, inplace=True)
