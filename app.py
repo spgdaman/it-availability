@@ -7,6 +7,10 @@ import io
 import re
 from download import download_button
 
+green = '#00FFB2'
+yellow = '#F0E199'
+red = '#EFB5B9'
+
 multiple_files_1 = st.sidebar.file_uploader(
     "Upload Common Uptime/Downtime Data Here, this is a multiple file uploader.",
     accept_multiple_files=True,
@@ -130,7 +134,7 @@ IS = '''
     FROM common_copy
     WHERE ISP = 'IS'
     GROUP BY MC
-    ORDER BY Availability;
+    ORDER BY Availability DESC;
 ''' 
 
 LTK = '''
@@ -138,7 +142,7 @@ LTK = '''
     FROM common_copy
     WHERE ISP = 'LTK'
     GROUP BY MC
-    ORDER BY Availability;
+    ORDER BY Availability DESC;
 ''' 
 
 JTL = '''
@@ -146,7 +150,7 @@ JTL = '''
     FROM common_copy
     WHERE ISP = 'JTL'
     GROUP BY MC
-    ORDER BY Availability;
+    ORDER BY Availability DESC;
 ''' 
 
 SAF = '''
@@ -154,7 +158,7 @@ SAF = '''
     FROM common_copy
     WHERE ISP = 'SAF'
     GROUP BY MC
-    ORDER BY Availability;
+    ORDER BY Availability DESC;
 '''
 
 ZUKU = '''
@@ -162,40 +166,125 @@ ZUKU = '''
     FROM common_copy
     WHERE ISP = 'ZUKU'
     GROUP BY MC
-    ORDER BY Availability;
+    ORDER BY Availability DESC;
 ''' 
 
-IS = mysql(IS).set_index('MC')
-LTK = mysql(LTK).set_index('MC')
-JTL = mysql(JTL).set_index('MC')
-SAF = mysql(SAF).set_index('MC')
-ZUKU = mysql(ZUKU).set_index('MC')
 
-IS = IS['Availability'].astype(int)
-LTK = LTK['Availability'].astype(int)
-JTL = JTL['Availability'].astype(int)
-SAF = SAF['Availability'].astype(int)
-ZUKU = ZUKU['Availability'].astype(int)
 
+IS = mysql(IS)
+LTK = mysql(LTK)
+JTL = mysql(JTL)
+SAF = mysql(SAF)
+ZUKU = mysql(ZUKU)
+
+IS['Availability'] = IS['Availability'].astype(int)
+LTK['Availability'] = LTK['Availability'].astype(int)
+JTL['Availability'] = JTL['Availability'].astype(int)
+SAF['Availability'] = SAF['Availability'].astype(int)
+ZUKU['Availability'] = ZUKU['Availability'].astype(int)
+
+# IS Availability Bar Chart
 st.subheader("IS Availability")
-st.bar_chart(IS)
+IS_avail_x = IS['MC'].to_list()
+IS_avail_y = IS['Availability'].to_list()
 
+col = []
+for val in IS_avail_y:
+    if val >= 99:
+        col.append(green)
+    elif val == 98:
+        col.append(yellow)
+    else:
+        col.append(red)
+
+fig = plt.figure()
+
+plt.bar(IS_avail_x,IS_avail_y, color = col)
+plt.xticks(rotation=80)
+st.pyplot(fig)
+
+
+# LTK Availability Bar Chart
 st.subheader("LTK Availability")
-st.bar_chart(LTK)
+IS_avail_x = LTK['MC'].to_list()
+IS_avail_y = LTK['Availability'].to_list()
 
+col = []
+for val in IS_avail_y:
+    if val >= 99:
+        col.append(green)
+    elif val == 98:
+        col.append(yellow)
+    else:
+        col.append(red)
+
+fig = plt.figure()
+
+plt.bar(IS_avail_x,IS_avail_y, color = col)
+plt.xticks(rotation=80)
+st.pyplot(fig)
+
+
+# JTL Availability Bar Chart
 st.subheader("JTL Availability")
-st.bar_chart(JTL)
+IS_avail_x = JTL['MC'].to_list()
+IS_avail_y = JTL['Availability'].to_list()
 
+col = []
+for val in IS_avail_y:
+    if val >= 99:
+        col.append(green)
+    elif val == 98:
+        col.append(yellow)
+    else:
+        col.append(red)
+
+fig = plt.figure()
+
+plt.bar(IS_avail_x,IS_avail_y, color = col)
+plt.xticks(rotation=80)
+st.pyplot(fig)
+
+
+# IS Availability Bar Chart
 st.subheader("SAF Availability")
-st.bar_chart(SAF)
+IS_avail_x = SAF['MC'].to_list()
+IS_avail_y = SAF['Availability'].to_list()
 
+col = []
+for val in IS_avail_y:
+    if val >= 99:
+        col.append(green)
+    elif val == 98:
+        col.append(yellow)
+    else:
+        col.append(red)
+
+fig = plt.figure()
+
+plt.bar(IS_avail_x,IS_avail_y, color = col)
+plt.xticks(rotation=80)
+st.pyplot(fig)
+
+# IS Availability Bar Chart
 st.subheader("ZUKU Common Uptime/Downtime")
-st.bar_chart(ZUKU)
+IS_avail_x = ZUKU['MC'].to_list()
+IS_avail_y = ZUKU['Availability'].to_list()
 
+col = []
+for val in IS_avail_y:
+    if val >= 99:
+        col.append(green)
+    elif val == 98:
+        col.append(yellow)
+    else:
+        col.append(red)
 
+fig = plt.figure()
 
-
-
+plt.bar(IS_avail_x,IS_avail_y, color = col)
+plt.xticks(rotation=80)
+st.pyplot(fig)
 
 
 # date and time splitting to individual columns for ddns
