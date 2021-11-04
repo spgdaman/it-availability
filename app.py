@@ -201,8 +201,10 @@ fig = plt.figure()
 
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
+for index,data in enumerate(IS_avail_y):
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9))
+plt.tight_layout()
 st.pyplot(fig)
-
 
 # LTK Availability Bar Chart
 st.subheader("LTK Availability")
@@ -222,6 +224,9 @@ fig = plt.figure()
 
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
+for index,data in enumerate(IS_avail_y):
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9))
+plt.tight_layout()
 st.pyplot(fig)
 
 
@@ -243,6 +248,9 @@ fig = plt.figure()
 
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
+for index,data in enumerate(IS_avail_y):
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9))
+plt.tight_layout()
 st.pyplot(fig)
 
 
@@ -264,6 +272,9 @@ fig = plt.figure()
 
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
+for index,data in enumerate(IS_avail_y):
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9))
+plt.tight_layout()
 st.pyplot(fig)
 
 # IS Availability Bar Chart
@@ -284,6 +295,9 @@ fig = plt.figure()
 
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
+for index,data in enumerate(IS_avail_y):
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9))
+plt.tight_layout()
 st.pyplot(fig)
 
 
@@ -357,4 +371,7 @@ fig = plt.figure()
 
 plt.bar(avail_x,avail_y, color = col)
 plt.xticks(rotation=80)
+for index,data in enumerate(avail_y):
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9))
+plt.tight_layout()
 st.pyplot(fig)
