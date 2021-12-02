@@ -341,7 +341,7 @@ fig = plt.figure()
 plt.bar(avail_x,avail_y, color = col)
 plt.xticks(rotation=80)
 for index,data in enumerate(avail_y):
-    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=4.8), ha='center')
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=4.6), ha='center')
 plt.tight_layout()
 st.pyplot(fig)
 
