@@ -118,17 +118,38 @@ common_uptime['Downtime'] = common_uptime['Downtime'].fillna('0')
 common_uptime['Downtime'] = common_uptime['Downtime'].replace({" ":"","<":"",">":""})
 common_uptime['Downtime'] = common_uptime['Downtime'].str.replace('%','')
 common_uptime['Downtime'] = common_uptime['Downtime'].str.replace('>','')
+common_uptime['Downtime'] = common_uptime['Downtime'].replace({"":0})
 common_uptime['Downtime'] = common_uptime['Downtime'].astype('int')/100
 
-# add conditional columns to common uptime dataframe
+# add conditional columns to common uptime dataframe (ITA)
 common_uptime['uptime'] = 1 - common_uptime['Downtime']
 common_uptime['Uptime (Minutes)'] = common_uptime['uptime'] * 15
 common_uptime['Max_Uptime'] = 15
 common_uptime['Downtime (Minutes)'] = common_uptime['Downtime'] * 15
 common_uptime.rename(columns={"Uptime (Minutes)":"Uptime_(Minutes)"}, inplace=True)
+common_uptime['common_downtime'] = common_uptime['uptime'].apply(lambda x: 0.25 if x == 0 else 0)
+
+common_downtime = common_uptime.groupby(['MC'], as_index=False)['common_downtime'].sum()
+st.write(common_downtime)
+download_button_str = download_button(common_downtime,"common_downtime.csv",'Download CSV',pickle_it=False)
+st.markdown(download_button_str, unsafe_allow_html=True)
+
+# dataframe checker
+st.write("ITA")
+st.write(common_uptime)
+download_button_str = download_button(common_uptime,"ita.csv",'Download CSV',pickle_it=False)
+st.markdown(download_button_str, unsafe_allow_html=True)
 
 common_copy = common_uptime[['MC','Uptime_(Minutes)','Max_Uptime','ISP']]
 mysql = lambda q: sqldf(q, globals())
+
+uptime_common = '''
+    SELECT MC, (SUM("Uptime_(Minutes)") / SUM(Max_Uptime))*100 as Availability
+    FROM common_copy
+    GROUP BY MC
+    ORDER BY Availability DESC;
+''' 
+
 IS = '''
     SELECT MC, (SUM("Uptime_(Minutes)") / SUM(Max_Uptime))*100 as Availability
     FROM common_copy
@@ -156,7 +177,7 @@ JTL = '''
 SAF = '''
     SELECT MC, (SUM("Uptime_(Minutes)") / SUM(Max_Uptime))*100 as Availability
     FROM common_copy
-    WHERE ISP = 'SAF'
+    WHERE ISP like 'SAF' or ISP like 'SAFARICOM'
     GROUP BY MC
     ORDER BY Availability DESC;
 '''
@@ -170,18 +191,19 @@ ZUKU = '''
 ''' 
 
 
-
+uptime_common = mysql(uptime_common)
 IS = mysql(IS)
 LTK = mysql(LTK)
 JTL = mysql(JTL)
 SAF = mysql(SAF)
 ZUKU = mysql(ZUKU)
 
-IS['Availability'] = IS['Availability'].astype(int)
-LTK['Availability'] = LTK['Availability'].astype(int)
-JTL['Availability'] = JTL['Availability'].astype(int)
-SAF['Availability'] = SAF['Availability'].astype(int)
-ZUKU['Availability'] = ZUKU['Availability'].astype(int)
+IS['Availability'] = IS['Availability'].astype(float).round(decimals=2)
+LTK['Availability'] = LTK['Availability'].astype(float).round(decimals=2)
+JTL['Availability'] = JTL['Availability'].astype(float).round(decimals=2)
+SAF['Availability'] = SAF['Availability'].astype(float).round(decimals=2)
+ZUKU['Availability'] = ZUKU['Availability'].astype(float).round(decimals=2)
+uptime_common['Availability'] = uptime_common['Availability'].astype(float).round(decimals=2)
 
 # IS Availability Bar Chart
 st.subheader("IS Availability")
@@ -202,7 +224,7 @@ fig = plt.figure()
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
 for index,data in enumerate(IS_avail_y):
-    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9), ha='center')
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=6), ha='center')
 plt.tight_layout()
 st.pyplot(fig)
 
@@ -225,7 +247,7 @@ fig = plt.figure()
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
 for index,data in enumerate(IS_avail_y):
-    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9), ha='center')
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=6), ha='center')
 plt.tight_layout()
 st.pyplot(fig)
 
@@ -249,12 +271,12 @@ fig = plt.figure()
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
 for index,data in enumerate(IS_avail_y):
-    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9), ha='center')
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=6), ha='center')
 plt.tight_layout()
 st.pyplot(fig)
 
 
-# IS Availability Bar Chart
+# SAF Availability Bar Chart
 st.subheader("SAF Availability")
 IS_avail_x = SAF['MC'].to_list()
 IS_avail_y = SAF['Availability'].to_list()
@@ -273,11 +295,11 @@ fig = plt.figure()
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
 for index,data in enumerate(IS_avail_y):
-    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9), ha='center')
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=5), ha='center')
 plt.tight_layout()
 st.pyplot(fig)
 
-# IS Availability Bar Chart
+# ZUKU Availability Bar Chart
 st.subheader("ZUKU Common Uptime/Downtime")
 IS_avail_x = ZUKU['MC'].to_list()
 IS_avail_y = ZUKU['Availability'].to_list()
@@ -296,9 +318,33 @@ fig = plt.figure()
 plt.bar(IS_avail_x,IS_avail_y, color = col)
 plt.xticks(rotation=80)
 for index,data in enumerate(IS_avail_y):
-    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=9), ha='center')
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=6), ha='center')
 plt.tight_layout()
 st.pyplot(fig)
+
+# Common Uptime Bar Chart
+st.subheader("Common Uptime by MC")
+avail_x = uptime_common['MC'].to_list()
+avail_y = uptime_common['Availability'].to_list()
+
+col = []
+for val in avail_y:
+    if val >= 99:
+        col.append(green)
+    elif val == 98:
+        col.append(yellow)
+    else:
+        col.append(red)
+
+fig = plt.figure()
+
+plt.bar(avail_x,avail_y, color = col)
+plt.xticks(rotation=80)
+for index,data in enumerate(avail_y):
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=4.8), ha='center')
+plt.tight_layout()
+st.pyplot(fig)
+
 
 
 # date and time splitting to individual columns for ddns
@@ -351,7 +397,7 @@ ddns_grouping = '''
 ''' 
 
 ddns_grouping = mysql(ddns_grouping)
-ddns_grouping['Availability'] = ddns_grouping['Availability'].astype(int)
+ddns_grouping['Availability'] = ddns_grouping['Availability'].astype(float).round(decimals=2)
 
 # DDNS Common Uptime/Downtime Bar Chart
 st.subheader("DDNS Common Uptime/Downtime")
@@ -372,6 +418,6 @@ fig = plt.figure()
 plt.bar(avail_x,avail_y, color = col)
 plt.xticks(rotation=80)
 for index,data in enumerate(avail_y):
-    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=7), ha='center')
+    plt.text(x=index , y =data+1 , s=f"{data}%" , fontdict=dict(fontsize=4.8), ha='center')
 plt.tight_layout()
 st.pyplot(fig)
